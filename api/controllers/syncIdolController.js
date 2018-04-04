@@ -12,16 +12,18 @@ function getAllIdol(res){
     });
 }
 
-function checkIdolExist(name){
-     var check = false;
+function checkIdolExist(name, callback){
      Idol.find({name: name}, function(err, idol){
         if(err){
-            check = true;
+            callback(false);
         }else{
-            check = false;
+            if(idol.length){
+                callback(true);                
+            }else{
+                callback(false);
+            }
         }
     });
-    return check;
 }
 
 module.exports = function(app){
@@ -56,6 +58,8 @@ module.exports = function(app){
     });   
 
     app.get("/api/test/:name", function(req,res){
-        console.log(checkIdolExist(req.param.name));
+       checkIdolExist(req.params.name, function(ok){
+            res.send(ok);
+       });
     });
 }
