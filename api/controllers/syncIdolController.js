@@ -1,7 +1,7 @@
 var Idol = require("../models/idolModel");
 const https = require("https");
 var config = require("../../config");
-
+var async = require("async");
 function getAllIdol(res){
     Idol.find(function(err, idols){
         if(err){
@@ -14,14 +14,16 @@ function getAllIdol(res){
 
 function checkIdolExist(name, callback){
      Idol.find({name: name}, function(err, idol){
+         
         if(err){
-            callback(false);
+            callback(null);
         }else{
             if(idol.length){
-                callback(true);                
+                callback(null); 
+                console.log('not null');               
             }else{
-                callback(false);
-            }
+                callback(name);
+           }
         }
     });
 }
@@ -39,18 +41,49 @@ module.exports = function(app){
             res.on("end", () => {
                 var seedIdol = [];
                 body = JSON.parse(body);
-                for (var i = 0; i < body.result.folders.length; i++) {
+               
+                // for (var i = 0; i < body.result.folders.length; i++) {
+                //         checkIdolExist(body.result.folders[i], function(ok){
+                //                 if(ok){ 
+                //                     seedIdol.push(ok);
+                //                 }
+                           
+                //     }); 
                     
-                        
-                        var idol = {
-                            name: body.result.folders[i].name,
-                            apiFolderId: body.result.folders[i].id
-                        }
-                        seedIdol.push(idol); 
+                // }   
+              
+                //console.log(seedIdol);
+                async.forEachOf(body.result.folders, (value, key, callback) => {
+                    // fs.readFile(__dirname + value, "utf8", (err, data) => {
+                    //     if (err) return callback(err);
+                    //     try {
+                    //         configs[key] = JSON.parse(data);
+                    //     } catch (e) {
+                    //         return callback(e);
+                    //     }
+                    //     callback();
+                    // });
+                        checkIdolExist(value.name, function(name){
+                            
+                            if(name){
+                                seedIdol.push({
+                                    name: value.name,
+                                    apiFolderId: value.id
+                                });
+                            }
+                            callback();
+                        });
+                
                     
-                }   
-                  Idol.create(seedIdol, function(err, results){ 
+                }, err => {
+                    if (err) console.error(err.message);
+                      Idol.create(seedIdol, function(err, results){ 
+                     });
+                    
                 });
+               
+                
+               
              });
              
         });
@@ -59,7 +92,11 @@ module.exports = function(app){
 
     app.get("/api/test/:name", function(req,res){
        checkIdolExist(req.params.name, function(ok){
-            res.send(ok);
+            if(ok){
+                res.send("ok");
+            }else{
+                res.send("not ok");
+            }
        });
     });
 }
