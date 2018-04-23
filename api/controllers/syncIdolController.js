@@ -2,12 +2,12 @@ var Idol = require("../models/idolModel");
 const https = require("https");
 var config = require("../../config");
 var async = require("async");
-function getAllIdol(res){
+function getAllIdol(callback){
     Idol.find(function(err, idols){
         if(err){
-            res.status(500).json(err);
+            callback(err);
         }else{
-            res.json(idols);
+            callback(idols);
         }
     });
 }
@@ -20,7 +20,6 @@ function checkIdolExist(name, callback){
         }else{
             if(idol.length){
                 callback(null); 
-                console.log('not null');               
             }else{
                 callback(name);
            }
@@ -31,40 +30,20 @@ function checkIdolExist(name, callback){
 module.exports = function(app){
     // sync from openload
     app.get("/api/syncIdol", function(req, res){
-         https.get(config.getIdolFromOpenload(), res => {
-            res.setEncoding("utf8");
+         https.get(config.getIdolFromOpenload(), resp => {
+            resp.setEncoding("utf8");
             let body = "";
-            res.on("data", data => {
+            resp.on("data", data => {
                 body += data;
             });
             
-            res.on("end", () => {
+            resp.on("end", () => {
                 var seedIdol = [];
                 body = JSON.parse(body);
                
-                // for (var i = 0; i < body.result.folders.length; i++) {
-                //         checkIdolExist(body.result.folders[i], function(ok){
-                //                 if(ok){ 
-                //                     seedIdol.push(ok);
-                //                 }
-                           
-                //     }); 
-                    
-                // }   
-              
-                //console.log(seedIdol);
                 async.forEachOf(body.result.folders, (value, key, callback) => {
-                    // fs.readFile(__dirname + value, "utf8", (err, data) => {
-                    //     if (err) return callback(err);
-                    //     try {
-                    //         configs[key] = JSON.parse(data);
-                    //     } catch (e) {
-                    //         return callback(e);
-                    //     }
-                    //     callback();
-                    // });
+                   
                         checkIdolExist(value.name, function(name){
-                            
                             if(name){
                                 seedIdol.push({
                                     name: value.name,
@@ -73,30 +52,65 @@ module.exports = function(app){
                             }
                             callback();
                         });
-                
                     
                 }, err => {
                     if (err) console.error(err.message);
                       Idol.create(seedIdol, function(err, results){ 
+                         res.send(results);
                      });
-                    
                 });
-               
-                
-               
+
              });
              
         });
-        res.send({'status': 'success'});
     });   
-
-    app.get("/api/test/:name", function(req,res){
-       checkIdolExist(req.params.name, function(ok){
-            if(ok){
-                res.send("ok");
-            }else{
-                res.send("not ok");
-            }
-       });
+    // sync file from openload 
+    app.get("/api/syncFile",  (req, res) => {
+        getAllIdol(function(ok){
+            async.forEachOf(ok, (value, key, callback) => {
+                   
+                https.get(config.getFileFromOpenload(), resp => {
+                    resp.setEncoding("utf8");
+                    let body = "";
+                    resp.on("data", data => {
+                        body += data;
+                    });
+                    
+                    resp.on("end", () => {
+                        var seedIdol = [];
+                        body = JSON.parse(body);
+                       
+                        async.forEachOf(body.result.folders, (value, key, callback) => {
+                           
+                                checkIdolExist(value.name, function(name){
+                                    if(name){
+                                        seedIdol.push({
+                                            name: value.name,
+                                            apiFolderId: value.id
+                                        });
+                                    }
+                                    callback();
+                                });
+                            
+                        }, err => {
+                            if (err) console.error(err.message);
+                              Idol.create(seedIdol, function(err, results){ 
+                                 res.send(results);
+                             });
+                        });
+        
+                     });
+                     
+                });
+            //
+            }, err => {
+                if (err) console.error(err.message);
+                Idol.create(seedIdol, function(err, results){ 
+                    res.send(results);
+                });
+            });
+        });
     });
+
+
 }

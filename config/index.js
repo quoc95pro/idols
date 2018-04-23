@@ -6,5 +6,8 @@ module.exports = {
     },
     getIdolFromOpenload: function(){
         return 'https://api.openload.co/1/file/listfolder?login=6d0fa8888208b015&key=CHIhWOYv';
+    },
+    getFileFromOpenload: function(){
+        return 'https://api.openload.co/1/file/listfolder?login=6d0fa8888208b015&key=CHIhWOYv&folder=';
     }
 }
