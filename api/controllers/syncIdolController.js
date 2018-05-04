@@ -1,9 +1,11 @@
 var Idol = require("../models/idolModel");
+var Files = require("../models/fileModel");
 const https = require("https");
 var config = require("../../config");
 var async = require("async");
-
 var request = require('request');
+
+// get all idol 
 function getAllIdol(callback){
     Idol.find(function(err, idols){
         if(err){
@@ -14,6 +16,18 @@ function getAllIdol(callback){
     });
 }
 
+// count all file
+function countAllFiles(callback){
+    Files.count(function(err, count){
+        if(err){
+            callback(err);
+        }else{
+            callback(count);
+        }
+    })
+}
+
+// check idol exist
 function checkIdolExist(name, callback){
      Idol.find({name: name}, function(err, idol){
          
@@ -29,33 +43,49 @@ function checkIdolExist(name, callback){
     });
 }
 
-let addPr = (a, b) => {
-   return new Promise((resolve, reject) => {
-       setTimeout(() => {
-           if(typeof a!= "number" || typeof b != "number"){
-                return reject(new Error ('Tham so phai la kieu number'));
+// check file exist
+    function checkFileExist(name, callback){
+    Files.find({name: name}, function(err, files){
+         
+        if(err){
+            callback(null);
+        }else{
+            if(files.length){
+                callback(null); 
+            }else{
+                callback(name);
            }
-           resolve(a + b);
-       }, 2000);
-   });
+        }
+    });
 }
 
-let add = async (callback) => {
-    let rs = await addPr(4,5);
-    callback(rs);
-}
 
+// sync file promise
 let requestVideoPr = (apiId) => {
     return new Promise((resolve, reject) => {
 
             request(config.getFileFromOpenload()+apiId, function (error, response, body) {
            
                 //console.log('error:', error); 
-                console.log(apiId);
-                console.log('statusCode:', response && response.statusCode); 
-                //body = JSON.parse(body);
-                //console.log('body:', body);
-                
+                //console.log(apiId);
+                //console.log('statusCode:', response && response.statusCode); 
+                body = JSON.parse(body);
+                async.forEachOf(body.result.files, (value, key, callback) => {
+                    
+                    checkFileExist(value.name, function(name){
+                        if(name){
+                            //console.log(value.name)
+                            Files.create(value, function(err, results){ 
+                            });
+                        }
+                        callback();
+                    });
+
+                    
+                }, err => {
+                    if (err) console.error(err.message);
+                });
+
                     resolve(response.statusCode);
                 
             });  
@@ -68,7 +98,7 @@ let requestVideoPr = (apiId) => {
     callback(rs);
 }
 
-
+// export api
 module.exports = function(app){
     // sync from openload
     app.get("/api/syncIdol", function(req, res){
@@ -130,8 +160,15 @@ module.exports = function(app){
                                 });
                 }, 100);
             }, function (err) {
-                if (err) console.error(err.message);
-                res.send(ok);
+                if (err)
+                {
+                    console.error(err.message);
+                } else{
+                    countAllFiles((count)=>{
+                        res.send('Total row count : ' + count);
+                    });
+                }
+                    
             });
 
         });
