@@ -11,7 +11,7 @@ var port = process.env.PORT || 3000;
 
 app.use("/assets", express.static(__dirname + "public"));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.urlencoded({ extended: false}));
 
 app.use(morgan("dev"));
 mongoose.connect(config.getDBConnectionString());
@@ -26,3 +26,7 @@ app.get("/", function(req, res){
 app.listen(port, function(){
   console.log("App listening on port: " + port);
 });
+
+app.post('/getFile', (req,res) =>{
+   console.log( req.body);
+})

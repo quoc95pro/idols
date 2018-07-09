@@ -1,8 +1,26 @@
 <html>
     <head>
         <title>Index</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <body>
-        <h1>OK</h1>
+        <form id="form">
+            <input type="file" name="img" id="img"/>
+            <input type="button" onclick="myFunction()" value="submit"/>
+        </form>
     </body>
+    <script>
+        function myFunction() {
+            var formData = new FormData();
+            formData.append("image", 'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+            $.ajax({ 
+                type: 'POST',
+                url: 'https://api.imgur.com/3/image',
+                contentType: false,
+                data: formData,
+                headers: {Authorization : 'Client-ID 853c7c2fa7352eb',
+                            Authorization : 'Bearer 242f96ffeb5b40b93ad004b46e36e36e16bcf939'}
+            })
+        }
+    </script>
 </html>

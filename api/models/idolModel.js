@@ -12,7 +12,8 @@ var idolSchema = new Schema({
         bust : {type : Number, default : null},
         waist : {type : Number, default : null},
         hips : {type : Number, default : null}
-    }
+    },
+    information : {type : String, default : null}
 });
 
 var Idol = mongoose.model("Idols", idolSchema);
