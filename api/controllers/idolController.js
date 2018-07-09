@@ -25,7 +25,7 @@ module.exports = function(app){
             }
         })
     });
-
+                                                                                                                    
     // find idol by name
     app.get("/api/idolByName/:name",function(req,res){
         Idol.find({name: { $regex: '.*' + req.params.name + '.*', $options: "i" } }, function(err, idol){
@@ -39,7 +39,7 @@ module.exports = function(app){
 
     // update idol by Id
     app.put("/api/idol", (req, res) =>{
-        if(!req.body._id){
+        if(!req.body._id){                                                                                                                                                                                                                                                                                                                                      
             return res.status(500).send("ID is required");
         }else{
             Idol.update({_id : req.body._id},{
@@ -52,7 +52,8 @@ module.exports = function(app){
                     bust : req.body.measurement.bust,
                     waist : req.body.measurement.waist,
                     hips : req.body.measurement.hips
-                }
+                },
+                information : req.body.information
             }, (err, idol) =>{
                 if(err) return res.status(500).json(err);
                 res.send('updated');
@@ -72,7 +73,8 @@ module.exports = function(app){
                 bust : req.body.measurement.bust,
                 waist : req.body.measurement.waist,
                 hips : req.body.measurement.hips
-            }
+            },
+            information : req.body.information
         };
 
         Idol.create(idol, (err, idol) => {

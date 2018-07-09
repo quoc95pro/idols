@@ -74,7 +74,6 @@ let requestVideoPr = (apiId) => {
                     
                     checkFileExist(value.name, function(name){
                         if(name){
-                            //console.log(value.name)
                             Files.create(value, function(err, results){ 
                             });
                         }
@@ -139,23 +138,10 @@ module.exports = function(app){
     // sync file from openload 
     app.get("/api/syncFile",  (req, res) => {
         getAllIdol(function(ok){
-
-            // async.forEachOf(ok, (value, key, callback) => {
-            //     setTimeout(function () {
-            //         requestVideo(value.apiFolderId,(rs)=>{
-            //                 //console.log(rs);
-            //                 callback();
-            //         });
-            //     },10000);
-            // }, err => {
-            //     if (err) console.error(err.message);
-            //     res.send('ok');
-            // });
                 
             async.eachSeries(ok, function (eachUrl, done) {
                 setTimeout(function () {
                     requestVideo(eachUrl.apiFolderId,(rs)=>{
-                                        //console.log(rs);
                                         done();
                                 });
                 }, 100);
@@ -168,7 +154,6 @@ module.exports = function(app){
                         res.send('Total row count : ' + count);
                     });
                 }
-                    
             });
 
         });
@@ -176,8 +161,6 @@ module.exports = function(app){
 
     app.get("/api/test", (req, res) => {
         request(config.getFileFromOpenload()+'5186505', function (error, response, body) {
-           
-                //console.log('error:', error); 
                 
                 console.log('statusCode:', response && response.statusCode); 
                 body = JSON.parse(body);
