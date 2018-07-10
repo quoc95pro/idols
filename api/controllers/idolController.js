@@ -1,7 +1,7 @@
 var Idol = require("../models/idolModel");
 
-function getAllIdol(res){
-    Idol.find(function(err, idol){
+function getAllIdol(req, res){
+    Idol.find().sort({'name': '1'}).limit(5).skip(req.params.page*5-5).exec( function(err, idol){
         if(err){
             throw err;
         }else{
@@ -11,8 +11,8 @@ function getAllIdol(res){
 }
 module.exports = function(app){
     // get all idol from database
-    app.get("/api/idols", function(req,res){
-        getAllIdol(res);
+    app.get("/api/idols/:page", function(req,res){
+        getAllIdol(req, res);
     });
 
     // find idol by id
@@ -60,7 +60,7 @@ module.exports = function(app){
             })
         }
     });
-
+    
     // create idol
     app.post("/api/idol", (req, res) => {
         var idol ={

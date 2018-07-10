@@ -4,6 +4,7 @@ var morgan =require("morgan");
 var mongoose = require("mongoose");
 var syncIdolController = require("./api/controllers/syncIdolController");
 var idolController = require("./api/controllers/idolController");
+var imageController = require("./api/controllers/imageController");
 
 var config = require("./config");
 var app = express();
@@ -19,6 +20,7 @@ mongoose.connect(config.getDBConnectionString());
 app.set("view engine", "ejs");
 syncIdolController(app);
 idolController(app);
+imageController(app);
 app.get("/", function(req, res){
   res.render("index");
 });

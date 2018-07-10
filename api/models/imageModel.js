@@ -7,7 +7,7 @@ var imageSchema = new Schema({
     idImgur : String,
     title : {type : String, default : null},
     type : {type : String, default : null},
-    size : {type : number, default : null},
+    size : {type : Number, default : null},
     nsfw : {type : String, default : null},
     deletehash : {type : String, default : null},
     link : {type : String, default : null}

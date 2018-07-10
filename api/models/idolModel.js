@@ -9,9 +9,9 @@ var idolSchema = new Schema({
     nationality : {type : String, default : 'Japan'},
     height : {type : Number, default : null},
     measurement : {
-        bust : {type : Number, default : null},
-        waist : {type : Number, default : null},
-        hips : {type : Number, default : null}
+        Bust : {type : Number, default : null},
+        Waist : {type : Number, default : null},
+        Hips : {type : Number, default : null}
     },
     information : {type : String, default : null}
 });
