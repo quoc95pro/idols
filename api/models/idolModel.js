@@ -8,6 +8,10 @@ var idolSchema = new Schema({
     dob : {type : Date, default : null},
     nationality : {type : String, default : 'Japan'},
     height : {type : Number, default : null},
+    avatar :{
+        imageId : String,
+        link : {type : String, default : null} 
+    },
     measurement : {
         Bust : {type : Number, default : null},
         Waist : {type : Number, default : null},
