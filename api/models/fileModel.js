@@ -14,8 +14,8 @@ var filesSchema = new Schema({
     download_count : String,
     cstatus : String,
     link : String,
-    linkextid : String 
-
+    linkextid : String, 
+    avatar : {type : String, default : null}
 });
 
 var Files = mongoose.model("Files", filesSchema);
